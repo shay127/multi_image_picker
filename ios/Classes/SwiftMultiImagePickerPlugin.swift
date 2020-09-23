@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
-import Photos
 import BSImagePicker
+import Photos
 
 extension PHAsset {
     
@@ -60,16 +60,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             if (status == PHAuthorizationStatus.denied) {
                 return result(FlutterError(code: "PERMISSION_PERMANENTLY_DENIED", message: "The user has denied the gallery access.", details: nil))
             }
-            
-            // 12 TECH TODO
-            // https://github.com/mikaoj/BSImagePicker/blob/master/Example/ViewController.swift
-            // imagePicker.settings.fetch.assets.supportedMediaTypes = [.image, .video]
-            let vc = BSImagePickerViewController()
-            
-            if #available(iOS 13.0, *) {
-                // Disables iOS 13 swipe to dismiss - to force user to press cancel or done.
-                vc.isModalInPresentation = true
-            }
+
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let maxImages = arguments["maxImages"] as! Int
             let enableCamera = arguments["enableCamera"] as! Bool
@@ -77,60 +68,91 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let selectedAssets = arguments["selectedAssets"] as! Array<String>
             var totalImagesSelected = 0
             
-            vc.maxNumberOfSelections = maxImages
+            // 12 TECH TODO
+            // https://github.com/mikaoj/BSImagePicker/blob/master/Example/ViewController.swift
+            // imagePicker.settings.fetch.assets.supportedMediaTypes = [.image, .video]
+            var vc = ImagePickerController()
 
+            if selectedAssets.count > 0 {
+                let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
+                var myAssets = [PHAsset]()
+                assets.enumerateObjects({ (asset, idx, stop) -> Void in
+                    myAssets.append(asset)
+                })
+                vc = ImagePickerController(selectedAssets: myAssets)
+            }
+            
+            if #available(iOS 13.0, *) {
+                // Disables iOS 13 swipe to dismiss - to force user to press cancel or done.
+                vc.isModalInPresentation = true
+            }
+            
+            vc.settings.selection.max = maxImages
+
+            vc.settings.fetch.assets.supportedMediaTypes = [.image, .video]
+
+            /*
             if (enableCamera) {
                 vc.takePhotos = true
             }
+            */
             
+            /*
             if selectedAssets.count > 0 {
                 let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
                 vc.defaultSelections = assets
             }
+            */
 
+            /*
             if let takePhotoIcon = options["takePhotoIcon"] {
                 if (!takePhotoIcon.isEmpty) {
                     vc.takePhotoIcon = UIImage(named: takePhotoIcon)
                 }
             }
+            */
 
             if let backgroundColor = options["backgroundColor"] {
                 if (!backgroundColor.isEmpty) {
-                    vc.backgroundColor = hexStringToUIColor(hex: backgroundColor)
+                    vc.settings.theme.backgroundColor = hexStringToUIColor(hex: backgroundColor)
                 }
             }
 
             if let selectionFillColor = options["selectionFillColor"] {
                 if (!selectionFillColor.isEmpty) {
-                    vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
+                    vc.settings.theme.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
                 }
             }
 
             if let selectionShadowColor = options["selectionShadowColor"] {
                 if (!selectionShadowColor.isEmpty) {
-                    vc.selectionShadowColor = hexStringToUIColor(hex: selectionShadowColor)
+                    vc.settings.theme.selectionShadowColor = hexStringToUIColor(hex: selectionShadowColor)
                 }
             }
 
             if let selectionStrokeColor = options["selectionStrokeColor"] {
                 if (!selectionStrokeColor.isEmpty) {
-                    vc.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
+                    vc.settings.theme.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
                 }
             }
 
+            /*
             if let selectionTextColor = options["selectionTextColor"] {
                 if (!selectionTextColor.isEmpty) {
                     vc.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
                 }
             }
+            */
 
+            /*
             if let selectionCharacter = options["selectionCharacter"] {
                 if (!selectionCharacter.isEmpty) {
                     vc.selectionCharacter = Character(selectionCharacter)
                 }
             }
+            */
 
-            UIViewController.topViewController()?.bs_presentImagePickerController(vc, animated: true,
+            UIViewController.topViewController()?.presentImagePicker(vc, animated: true,
                 select: { (asset: PHAsset) -> Void in
                     totalImagesSelected += 1
                     
