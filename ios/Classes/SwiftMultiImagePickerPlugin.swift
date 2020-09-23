@@ -61,6 +61,9 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 return result(FlutterError(code: "PERMISSION_PERMANENTLY_DENIED", message: "The user has denied the gallery access.", details: nil))
             }
             
+            // 12 TECH TODO
+            // https://github.com/mikaoj/BSImagePicker/blob/master/Example/ViewController.swift
+            // imagePicker.settings.fetch.assets.supportedMediaTypes = [.image, .video]
             let vc = BSImagePickerViewController()
             
             if #available(iOS 13.0, *) {
