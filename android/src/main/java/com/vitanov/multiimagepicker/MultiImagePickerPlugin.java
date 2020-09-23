@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -20,10 +21,20 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 
-import com.sangcomz.fishbun.FishBun;
-import com.sangcomz.fishbun.FishBunCreator;
-import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
-import com.sangcomz.fishbun.define.Define;
+import com.esafirm.imagepicker.R;
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.features.ReturnMode;
+import com.esafirm.imagepicker.features.ImagePickerConfig;
+import com.esafirm.imagepicker.features.ImagePickerFragment;
+import com.esafirm.imagepicker.features.ImagePickerInteractionListener;
+import com.esafirm.imagepicker.features.cameraonly.CameraOnlyConfig;
+import com.esafirm.imagepicker.helper.ConfigUtils;
+import com.esafirm.imagepicker.helper.IpLogger;
+import com.esafirm.imagepicker.helper.LocaleManager;
+import com.esafirm.imagepicker.helper.ViewUtils;
+import com.esafirm.imagepicker.model.Image;
+
+import android.content.pm.ActivityInfo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -326,6 +337,7 @@ public class MultiImagePickerPlugin implements
                 ExifInterface.TAG_MAKE,
                 ExifInterface.TAG_MODEL
         };
+        
         String[] tags_double = {
                 ExifInterface.TAG_APERTURE_VALUE,
                 ExifInterface.TAG_FLASH,
@@ -341,6 +353,7 @@ public class MultiImagePickerPlugin implements
                 ExifInterface.TAG_WHITE_BALANCE,
                 ExifInterface.TAG_EXPOSURE_TIME
         };
+        
         HashMap<String, Object> exif_str = getExif_str(exifInterface, tags_str);
         result.putAll(exif_str);
         HashMap<String, Object> exif_double = getExif_double(exifInterface, tags_double);
@@ -516,97 +529,174 @@ public class MultiImagePickerPlugin implements
     }
 
     private void presentPicker(int maxImages, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {
-        String actionBarColor = options.get("actionBarColor");
-        String statusBarColor = options.get("statusBarColor");
-        String lightStatusBar = options.get("lightStatusBar");
-        String actionBarTitle = options.get("actionBarTitle");
-        String actionBarTitleColor = options.get("actionBarTitleColor");
-        String allViewTitle = options.get("allViewTitle");
-        String startInAllView = options.get("startInAllView");
-        String useDetailsView = options.get("useDetailsView");
-        String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
-        String selectionLimitReachedText = options.get("selectionLimitReachedText");
-        String textOnNothingSelected = options.get("textOnNothingSelected");
-        String backButtonDrawable = options.get("backButtonDrawable");
-        String okButtonDrawable = options.get("okButtonDrawable");
         String autoCloseOnSelectionLimit = options.get("autoCloseOnSelectionLimit");
-        ArrayList<Uri> selectedUris = new ArrayList<Uri>();
+        //ArrayList<Uri> selectedUris = new ArrayList<Uri>();
+        ArrayList<Image> selectedImages = new ArrayList<Image>();
 
         for (String path : selectedAssets) {
+            /*
+            System.out.println("[1] ===== " + path + " =====");
+            System.out.println("[2] ===== " + convertMediaUriToPath(Uri.parse(path)) + " =====");
+            System.out.println("[3] ===== " + convertMediaUriToId(Uri.parse(path)) + " =====");
             selectedUris.add(Uri.parse(path));
+            */
+            long selectedAssetId = convertMediaUriToId(Uri.parse(path));
+            String selectedAssetPath = convertMediaUriToPath(Uri.parse(path));
+            String selectedAssetName = selectedAssetPath.substring(selectedAssetPath.lastIndexOf("/")+1);
+            selectedImages.add(new Image(selectedAssetId, selectedAssetName, selectedAssetPath));
         }
 
-        FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
-                .setImageAdapter(new GlideAdapter())
-                .setMaxCount(maxImages)
-                .setCamera(enableCamera)
-                .setRequestCode(REQUEST_CODE_CHOOSE)
-                .setSelectedImages(selectedUris)
-                .exceptGif(true)
-                .setIsUseDetailView(useDetailsView.equals("true"))
-                .setReachLimitAutomaticClose(autoCloseOnSelectionLimit.equals("true"))
-                .isStartInAllView(startInAllView.equals("true"));
+        /*
+        boolean mediaTypeExclusive = false;
+        Set<MimeType> mimeTypes = MimeType.ofAll();
+        String packageName = context.getApplicationInfo().packageName;
+        Matisse.from(MultiImagePickerPlugin.this.activity)
+                .choose(mimeTypes, mediaTypeExclusive)
+                .showSingleMediaType(false)
+                .countable(true)
+                .capture(enableCamera)
+                .captureStrategy(
+                    new CaptureStrategy(true, packageName + ".multiimagepicker.fileprovider")
+                )
+                .maxSelectable(maxImages)
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .showPreview(false)
+                .imageEngine(new GlideEngine())
+                .autoHideToolbarOnSingleTap(true)
+                .setOnSelectedListener(new OnSelectedListener() {
+                    public void onSelected(List<Uri> uriList, List<String> pathList) {
+                        System.out.println("===== onSelected: pathList=" + pathList + ", count: " + pathList.length);
+                        if (pathList.length == maxImages) {
 
-        if (!textOnNothingSelected.isEmpty()) {
-            fishBun.textOnNothingSelected(textOnNothingSelected);
+                        }
+                    }
+                })
+                .setOnCheckedListener(new OnCheckedListener() {
+                    public void onCheck(boolean isChecked) {
+                        System.out.println("===== onCheck: isChecked=" + isChecked);
+                    }
+                })
+                .forResult(REQUEST_CODE_CHOOSE);
+
+        */
+
+        if (maxImages == 1) {
+            ImagePicker.create(MultiImagePickerPlugin.this.activity)
+                .returnMode(ReturnMode.ALL)
+                .folderMode(true)
+                .toolbarFolderTitle("Folder")
+                .toolbarImageTitle("Tap to select")
+                .toolbarArrowColor(Color.BLACK)
+                .includeVideo(true)
+                .single()
+                .showCamera(enableCamera)
+                .imageDirectory("Camera")
+                //.theme(R.style.CustomImagePickerTheme)
+                .start();
+        } else {
+            ImagePicker.create(MultiImagePickerPlugin.this.activity)
+                .returnMode(ReturnMode.NONE)
+                .folderMode(true)
+                .toolbarFolderTitle("Folder")
+                .toolbarImageTitle("Tap to select")
+                .toolbarArrowColor(Color.BLACK)
+                .includeVideo(true)
+                .multi()
+                .limit(maxImages)
+                .showCamera(enableCamera)
+                .imageDirectory("Camera")
+                .origin(selectedImages)
+                //.theme(R.style.CustomImagePickerTheme)
+                .start();
         }
-
-        if (!backButtonDrawable.isEmpty()) {
-            int id = context.getResources().getIdentifier(backButtonDrawable, "drawable", context.getPackageName());
-            fishBun.setHomeAsUpIndicatorDrawable(ContextCompat.getDrawable(context, id));
-        }
-
-        if (!okButtonDrawable.isEmpty()) {
-            int id = context.getResources().getIdentifier(okButtonDrawable, "drawable", context.getPackageName());
-            fishBun.setDoneButtonDrawable(ContextCompat.getDrawable(context, id));
-        }
-
-        if (actionBarColor != null && !actionBarColor.isEmpty()) {
-            int color = Color.parseColor(actionBarColor);
-            if (statusBarColor != null && !statusBarColor.isEmpty()) {
-                int statusBarColorInt = Color.parseColor(statusBarColor);
-                if (lightStatusBar != null && !lightStatusBar.isEmpty()) {
-                    boolean lightStatusBarValue = lightStatusBar.equals("true");
-                    fishBun.setActionBarColor(color, statusBarColorInt, lightStatusBarValue);
-                } else {
-                    fishBun.setActionBarColor(color, statusBarColorInt);
-                }
-            } else {
-                fishBun.setActionBarColor(color);
-            }
-        }
-
-        if (actionBarTitle != null && !actionBarTitle.isEmpty()) {
-            fishBun.setActionBarTitle(actionBarTitle);
-        }
-
-        if (selectionLimitReachedText != null && !selectionLimitReachedText.isEmpty()) {
-            fishBun.textOnImagesSelectionLimitReached(selectionLimitReachedText);
-        }
-
-        if (selectCircleStrokeColor != null && !selectCircleStrokeColor.isEmpty()) {
-            fishBun.setSelectCircleStrokeColor(Color.parseColor(selectCircleStrokeColor));
-        }
-
-        if (actionBarTitleColor != null && !actionBarTitleColor.isEmpty()) {
-            int color = Color.parseColor(actionBarTitleColor);
-            fishBun.setActionBarTitleColor(color);
-        }
-
-        if (allViewTitle != null && !allViewTitle.isEmpty()) {
-            fishBun.setAllViewTitle(allViewTitle);
-        }
-
-        fishBun.startAlbum();
-
     }
 
+    private String convertMediaUriToPath(Uri uri) {
+	    String [] proj={MediaStore.Images.Media.DATA};
+	    Cursor cursor = context.getContentResolver().query(uri, proj,  null, null, null);
+	    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+	    cursor.moveToFirst();
+	    String path = cursor.getString(column_index); 
+	    cursor.close();
+	    return path;
+    }
+    
+    private long convertMediaUriToId(Uri uri) {
+	    String [] proj={MediaStore.Images.Media._ID};
+	    Cursor cursor = context.getContentResolver().query(uri, proj,  null, null, null);
+	    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+	    cursor.moveToFirst();
+	    long id = cursor.getLong(column_index); 
+	    cursor.close();
+	    return id;
+	}
+
     @Override
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+    public boolean onActivityResult(int requestCode, final int resultCode, Intent data) {
+        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+			// Get a list of picked images
+			List<Image> images = ImagePicker.getImages(data);
+            // or get a single image only
+            //Image image = ImagePicker.getFirstImageOrNull(data);
+            
+            if (images == null || images.size() == 0) {
+                clearMethodCallAndResult();
+                return false;
+            }
+            List<HashMap<String, Object>> result = new ArrayList<>(images.size());
+            for (Image image : images) {
+                Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image.getId());
+                System.out.println("[A] ===== " + image.getId() + " ; " + image.getName() + " ; " + image.getPath() + " =====");
+                //Uri uri = image.getUri();
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("identifier", uri.toString());
+                //map.put("identifier", path);
+                InputStream is = null;
+                int width = 0, height = 0;
+
+                try {
+                    is = context.getContentResolver().openInputStream(uri);
+                    BitmapFactory.Options dbo = new BitmapFactory.Options();
+                    dbo.inJustDecodeBounds = true;
+                    dbo.inScaled = false;
+                    dbo.inSampleSize = 1;
+                    BitmapFactory.decodeStream(is, null, dbo);
+                    if (is != null) {
+                        is.close();
+                    }
+
+                    int orientation = getOrientation(context, uri);
+
+                    if (orientation == 90 || orientation == 270) {
+                        width = dbo.outHeight;
+                        height = dbo.outWidth;
+                    } else {
+                        width = dbo.outWidth;
+                        height = dbo.outHeight;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                map.put("width", width);
+                map.put("height", height);
+                map.put("name", getFileName(uri));
+                result.add(map);
+            }
+            finishWithSuccess(result);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /*
+    public boolean onActivityResult2(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
             finishWithError("CANCELLED", "The user has cancelled the selection");
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
-            List<Uri> photos = data.getParcelableArrayListExtra(Define.INTENT_PATH);
+            List<Uri> photos = Matisse.obtainResult(data);
             if (photos == null) {
                 clearMethodCallAndResult();
                 return false;
@@ -655,6 +745,7 @@ public class MultiImagePickerPlugin implements
         }
         return false;
     }
+    */
 
     private HashMap<String, Object> getLatLng(ExifInterface exifInterface, @NonNull Uri uri) {
         HashMap<String, Object> result = new HashMap<>();

@@ -11,6 +11,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  Asset previewImage;
   List<Asset> images = List<Asset>();
   String _error = 'No Error Dectected';
 
@@ -33,16 +34,96 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  Widget buildImagePreview() {
+    if (previewImage == null) {
+      return Container(color: Colors.white);
+    }
+    return Column(children: <Widget>[
+      AssetThumb(
+        asset: previewImage,
+        width: 300,
+        height: 300,
+      ),
+      RaisedButton(
+        child: Text("Cancel"),
+        onPressed: () {
+          setState(() {
+            previewImage = null;
+          });
+        },
+      ),
+      RaisedButton(
+        child: Text("Ok"),
+        onPressed: () {
+          setState(() {
+            previewImage = null;
+            images = [previewImage];
+          });
+        },
+      ),
+      RaisedButton(
+        child: Text("Add"),
+        onPressed: () async {
+          images = [previewImage];
+          previewImage = null;
+          await loadAssets();
+        },
+      ),
+    ]);
+  }
+
+  Future<void> loadAsset() async {
+    List<Asset> resultList = List<Asset>();
+    String error = 'No Error Dectected';
+
+    try {
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 1,
+        enableCamera: false,
+        selectedAssets: [],
+        cupertinoOptions: CupertinoOptions(
+          takePhotoIcon: "chat",
+          autoCloseOnSelectionLimit: true,
+        ),
+        materialOptions: MaterialOptions(
+          actionBarColor: "#abcdef",
+          actionBarTitle: "Example App",
+          allViewTitle: "All Photos",
+          useDetailsView: false,
+          selectCircleStrokeColor: "#000000",
+          autoCloseOnSelectionLimit: true,
+          startInAllView: true,
+        ),
+      );
+    } on Exception catch (e) {
+      error = e.toString();
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    if (resultList != null && resultList.length == 1) {
+      setState(() {
+        previewImage = resultList[0];
+        _error = error;
+      });
+    }
+  }
+
   Future<void> loadAssets() async {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
 
     try {
       resultList = await MultiImagePicker.pickImages(
-        maxImages: 300,
-        enableCamera: true,
+        maxImages: 100,
+        enableCamera: false,
         selectedAssets: images,
-        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+        cupertinoOptions: CupertinoOptions(
+          takePhotoIcon: "chat",
+        ),
         materialOptions: MaterialOptions(
           actionBarColor: "#abcdef",
           actionBarTitle: "Example App",
@@ -78,8 +159,9 @@ class _MyAppState extends State<MyApp> {
             Center(child: Text('Error: $_error')),
             RaisedButton(
               child: Text("Pick images"),
-              onPressed: loadAssets,
+              onPressed: loadAsset,
             ),
+            buildImagePreview(),
             Expanded(
               child: buildGridView(),
             )
