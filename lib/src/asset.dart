@@ -16,11 +16,15 @@ class Asset {
   /// Original image height
   int _originalHeight;
 
+  /// indication if image or video
+  bool _isVideo;
+
   Asset(
     this._identifier,
     this._name,
     this._originalWidth,
     this._originalHeight,
+    this._isVideo,
   );
 
   /// The BinaryChannel name this asset is listening on.
@@ -60,6 +64,11 @@ class Asset {
   /// Returns the image name
   String get name {
     return _name;
+  }
+
+  /// Returns if image or video
+  bool get isVideo {
+    return _isVideo;
   }
 
   /// Requests a thumbnail for the [Asset] with give [width] and [hegiht].

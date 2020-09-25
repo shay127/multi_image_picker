@@ -79,20 +79,33 @@ class _MyAppState extends State<MyApp> {
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 1,
-        enableCamera: false,
+        galleryMode: 1,
         selectedAssets: [],
         cupertinoOptions: CupertinoOptions(
-          takePhotoIcon: "chat",
-          autoCloseOnSelectionLimit: true,
+          selectionStyle: "checked",
+          albumButtonTintColor: "#808080",
+          cancelButtonTintColor: "#fcba03",
+          doneButtonTintColor: "#adfc03",
+          navigationBarTintColor: "#03fc14",
+          backgroundColor: "#03fcf4",
+          selectionFillColor: "#0303fc",
+          selectionStrokeColor: "#6f03fc",
+          selectionShadowColor: "#fc03e7",
+          previewTitleAttributesFontSize: "12",
+          previewTitleAttributesForegroundColor: "#fc036b",
+          previewSubtitleAttributesFontSize: "12",
+          previewSubtitleAttributesForegroundColor: "#fc0303",
+          albumTitleAttributesFontSize: "12",
+          albumTitleAttributesForegroundColor: "#808080",
+          cellsPerRow: "4",
         ),
         materialOptions: MaterialOptions(
-          actionBarColor: "#abcdef",
-          actionBarTitle: "Example App",
-          allViewTitle: "All Photos",
-          useDetailsView: false,
-          selectCircleStrokeColor: "#000000",
-          autoCloseOnSelectionLimit: true,
-          startInAllView: true,
+          folderMode: true,
+          toolbarFolderTitle: "Example App",
+          toolbarImageTitle: "All Photos",
+          toolbarDoneButtonText: "Done",
+          toolbarArrowColor: "black",
+          includeAnimation: true,
         ),
       );
     } on Exception catch (e) {
@@ -107,6 +120,7 @@ class _MyAppState extends State<MyApp> {
     if (resultList != null && resultList.length == 1) {
       setState(() {
         previewImage = resultList[0];
+        print("isVideo: ${previewImage.isVideo}");
         _error = error;
       });
     }
@@ -119,17 +133,33 @@ class _MyAppState extends State<MyApp> {
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 100,
-        enableCamera: false,
+        galleryMode: 1,
         selectedAssets: images,
         cupertinoOptions: CupertinoOptions(
-          takePhotoIcon: "chat",
+          selectionStyle: "checked",
+          albumButtonTintColor: "#808080",
+          cancelButtonTintColor: "#fcba03",
+          doneButtonTintColor: "#adfc03",
+          navigationBarTintColor: "#03fc14",
+          backgroundColor: "#03fcf4",
+          selectionFillColor: "#0303fc",
+          selectionStrokeColor: "#6f03fc",
+          selectionShadowColor: "#fc03e7",
+          previewTitleAttributesFontSize: "12",
+          previewTitleAttributesForegroundColor: "#fc036b",
+          previewSubtitleAttributesFontSize: "12",
+          previewSubtitleAttributesForegroundColor: "#fc0303",
+          albumTitleAttributesFontSize: "12",
+          albumTitleAttributesForegroundColor: "#808080",
+          cellsPerRow: "4",
         ),
         materialOptions: MaterialOptions(
-          actionBarColor: "#abcdef",
-          actionBarTitle: "Example App",
-          allViewTitle: "All Photos",
-          useDetailsView: false,
-          selectCircleStrokeColor: "#000000",
+          folderMode: true,
+          toolbarFolderTitle: "Example App",
+          toolbarImageTitle: "All Photos",
+          toolbarDoneButtonText: "Done",
+          toolbarArrowColor: "black",
+          includeAnimation: true,
         ),
       );
     } on Exception catch (e) {

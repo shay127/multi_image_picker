@@ -35,7 +35,7 @@ class MultiImagePicker {
   /// you can refer to the docs for the Asset class.
   static Future<List<Asset>> pickImages({
     @required int maxImages,
-    bool enableCamera = false,
+    @required int galleryMode, // 1-Images&Video;2-Images;3-Video
     List<Asset> selectedAssets = const [],
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
@@ -51,7 +51,7 @@ class MultiImagePicker {
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
-          'enableCamera': enableCamera,
+          'galleryMode': galleryMode,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
           'selectedAssets': selectedAssets
@@ -68,6 +68,7 @@ class MultiImagePicker {
           item['name'],
           item['width'],
           item['height'],
+          item['isVideo'],
         );
         assets.add(asset);
       }

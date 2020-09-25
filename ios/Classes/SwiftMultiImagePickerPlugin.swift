@@ -63,14 +63,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let maxImages = arguments["maxImages"] as! Int
-            let enableCamera = arguments["enableCamera"] as! Bool
+            let galleryMode = arguments["galleryMode"] as! Int
             let options = arguments["iosOptions"] as! Dictionary<String, String>
             let selectedAssets = arguments["selectedAssets"] as! Array<String>
             var totalImagesSelected = 0
             
-            // 12 TECH TODO
-            // https://github.com/mikaoj/BSImagePicker/blob/master/Example/ViewController.swift
-            // imagePicker.settings.fetch.assets.supportedMediaTypes = [.image, .video]
             var vc = ImagePickerController()
 
             if selectedAssets.count > 0 {
@@ -89,28 +86,14 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             
             vc.settings.selection.max = maxImages
 
-            vc.settings.fetch.assets.supportedMediaTypes = [.image, .video]
-
-            /*
-            if (enableCamera) {
-                vc.takePhotos = true
+            // galleryMode : 1-Images&Video;2-Images;3-Video
+            if (galleryMode == 1) {
+                vc.settings.fetch.assets.supportedMediaTypes = [.image, .video]
+            } else if (galleryMode == 2) {
+                vc.settings.fetch.assets.supportedMediaTypes = [.image]
+            } else if (galleryMode == 3) {
+                vc.settings.fetch.assets.supportedMediaTypes = [.video]
             }
-            */
-            
-            /*
-            if selectedAssets.count > 0 {
-                let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
-                vc.defaultSelections = assets
-            }
-            */
-
-            /*
-            if let takePhotoIcon = options["takePhotoIcon"] {
-                if (!takePhotoIcon.isEmpty) {
-                    vc.takePhotoIcon = UIImage(named: takePhotoIcon)
-                }
-            }
-            */
 
             if let backgroundColor = options["backgroundColor"] {
                 if (!backgroundColor.isEmpty) {
@@ -136,21 +119,92 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 }
             }
 
-            /*
-            if let selectionTextColor = options["selectionTextColor"] {
-                if (!selectionTextColor.isEmpty) {
-                    vc.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
+            if let albumButtonTintColor = options["albumButtonTintColor"] {
+                if (!albumButtonTintColor.isEmpty) {
+                    vc.albumButton.tintColor = hexStringToUIColor(hex: albumButtonTintColor)
                 }
             }
-            */
 
-            /*
-            if let selectionCharacter = options["selectionCharacter"] {
-                if (!selectionCharacter.isEmpty) {
-                    vc.selectionCharacter = Character(selectionCharacter)
+            if let cancelButtonTintColor = options["cancelButtonTintColor"] {
+                if (!cancelButtonTintColor.isEmpty) {
+                    vc.cancelButton.tintColor = hexStringToUIColor(hex: cancelButtonTintColor)
                 }
             }
-            */
+
+            if let doneButtonTintColor = options["doneButtonTintColor"] {
+                if (!doneButtonTintColor.isEmpty) {
+                    vc.doneButton.tintColor = hexStringToUIColor(hex: doneButtonTintColor)
+                }
+            }
+
+            if let navigationBarTintColor = options["navigationBarTintColor"] {
+                if (!navigationBarTintColor.isEmpty) {
+                    vc.navigationBar.barTintColor = hexStringToUIColor(hex: navigationBarTintColor)
+                }
+            }
+
+            if let cellsPerRow = options["cellsPerRow"] {
+                if (!cellsPerRow.isEmpty) {
+                    vc.settings.list.cellsPerRow = {(verticalSize: UIUserInterfaceSizeClass, horizontalSize: UIUserInterfaceSizeClass) -> Int in
+                        switch (verticalSize, horizontalSize) {
+                            case (.compact, .regular): // iPhone5-6 portrait
+                                return 2
+                            case (.compact, .compact): // iPhone5-6 landscape
+                                return 2
+                            case (.regular, .regular): // iPad portrait/landscape
+                                return 3
+                            default:
+                                return Int(cellsPerRow) ?? 3
+                        }
+                    }
+                }
+            }
+
+            if let selectionStyle = options["selectionStyle"] {
+                if (!selectionStyle.isEmpty) {
+                    if (selectionStyle == "checked") {
+                        vc.settings.theme.selectionStyle = .checked
+                    } else if (selectionStyle == "numbered") {
+                        vc.settings.theme.selectionStyle = .numbered
+                    }
+                }
+            }
+
+            if let previewTitleAttributesFontSize = options["previewTitleAttributesFontSize"] {
+                if (!previewTitleAttributesFontSize.isEmpty) {
+                    vc.settings.theme.previewTitleAttributes[NSAttributedString.Key.font] = UIFont.systemFont(ofSize: CGFloat((previewTitleAttributesFontSize as NSString).floatValue))
+                }
+            }
+
+            if let previewTitleAttributesForegroundColor = options["previewTitleAttributesForegroundColor"] {
+                if (!previewTitleAttributesForegroundColor.isEmpty) {
+                    vc.settings.theme.previewTitleAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: previewTitleAttributesForegroundColor)
+                }
+            }
+
+            if let previewSubtitleAttributesFontSize = options["previewSubtitleAttributesFontSize"] {
+                if (!previewSubtitleAttributesFontSize.isEmpty) {
+                    vc.settings.theme.previewSubtitleAttributes[NSAttributedString.Key.font] = UIFont.systemFont(ofSize: CGFloat((previewSubtitleAttributesFontSize as NSString).floatValue))
+                }
+            }
+
+            if let previewSubtitleAttributesForegroundColor = options["previewSubtitleAttributesForegroundColor"] {
+                if (!previewSubtitleAttributesForegroundColor.isEmpty) {
+                    vc.settings.theme.previewSubtitleAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: previewSubtitleAttributesForegroundColor)
+                }
+            }
+
+            if let albumTitleAttributesFontSize = options["albumTitleAttributesFontSize"] {
+                if (!albumTitleAttributesFontSize.isEmpty) {
+                    vc.settings.theme.albumTitleAttributes[NSAttributedString.Key.font] = UIFont.systemFont(ofSize: CGFloat((albumTitleAttributesFontSize as NSString).floatValue))
+                }
+            }
+
+            if let albumTitleAttributesForegroundColor = options["albumTitleAttributesForegroundColor"] {
+                if (!albumTitleAttributesForegroundColor.isEmpty) {
+                    vc.settings.theme.albumTitleAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: albumTitleAttributesForegroundColor)
+                }
+            }
 
             UIViewController.topViewController()?.presentImagePicker(vc, animated: true,
                 select: { (asset: PHAsset) -> Void in
@@ -174,7 +228,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                             "identifier": asset.localIdentifier,
                             "width": asset.pixelWidth,
                             "height": asset.pixelHeight,
-                            "name": asset.originalFilename!
+                            "name": asset.originalFilename!,
+                            "isVideo": asset.mediaType == .video
                         ]);
                     }
                     result(results);

@@ -34,7 +34,7 @@ void main() {
           <Matcher>[
             isMethodCall('pickImages', arguments: <String, dynamic>{
               'maxImages': 5,
-              'enableCamera': false,
+              'galleryMode': 1,
               'iosOptions': CupertinoOptions().toJson(),
               'androidOptions': MaterialOptions().toJson(),
               'selectedAssets': [],
@@ -44,7 +44,7 @@ void main() {
       });
 
       test('passes selected assets correctly', () async {
-        Asset asset = Asset("test", "test.jpg", 100, 100);
+        Asset asset = Asset("test", "test.jpg", 100, 100, false);
         await MultiImagePicker.pickImages(
           maxImages: 5,
           selectedAssets: [asset],
@@ -55,7 +55,7 @@ void main() {
           <Matcher>[
             isMethodCall('pickImages', arguments: <String, dynamic>{
               'maxImages': 5,
-              'enableCamera': false,
+              'galleryMode': 1,
               'iosOptions': CupertinoOptions().toJson(),
               'androidOptions': MaterialOptions().toJson(),
               'selectedAssets': [asset.identifier],
@@ -67,11 +67,9 @@ void main() {
       test('passes cuppertino options argument correctly', () async {
         CupertinoOptions cupertinoOptions = CupertinoOptions(
           backgroundColor: '#ffde05',
-          selectionCharacter: 'A',
           selectionFillColor: '#004ed5',
           selectionShadowColor: '#05e43d',
           selectionStrokeColor: '#0f5e4D',
-          selectionTextColor: '#ffffff',
         );
 
         await MultiImagePicker.pickImages(
@@ -82,7 +80,7 @@ void main() {
           <Matcher>[
             isMethodCall('pickImages', arguments: <String, dynamic>{
               'maxImages': 5,
-              'enableCamera': false,
+              'galleryMode': 1,
               'iosOptions': cupertinoOptions.toJson(),
               'androidOptions': MaterialOptions().toJson(),
               'selectedAssets': [],
@@ -93,15 +91,12 @@ void main() {
 
       test('passes meterial options argument correctly', () async {
         MaterialOptions materialOptions = MaterialOptions(
-          actionBarTitle: "Aciton bar",
-          allViewTitle: "All view title",
-          actionBarColor: "#aaaaaa",
-          actionBarTitleColor: "#bbbbbb",
-          lightStatusBar: false,
-          statusBarColor: '#abcdef',
-          startInAllView: true,
-          useDetailsView: true,
-          selectCircleStrokeColor: "#ffffff",
+          folderMode: true,
+          toolbarFolderTitle: "Aciton bar",
+          toolbarImageTitle: "All view title",
+          toolbarDoneButtonText: "Done",
+          toolbarArrowColor: 1,
+          includeAnimation: false,
         );
         await MultiImagePicker.pickImages(
             maxImages: 5, materialOptions: materialOptions);
@@ -111,7 +106,7 @@ void main() {
           <Matcher>[
             isMethodCall('pickImages', arguments: <String, dynamic>{
               'maxImages': 5,
-              'enableCamera': false,
+              'galleryMode': 1,
               'androidOptions': materialOptions.toJson(),
               'iosOptions': CupertinoOptions().toJson(),
               'selectedAssets': [],

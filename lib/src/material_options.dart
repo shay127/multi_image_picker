@@ -1,53 +1,28 @@
 class MaterialOptions {
-  final String actionBarColor;
-  final String statusBarColor;
-  final bool lightStatusBar;
-  final String actionBarTitleColor;
-  final String allViewTitle;
-  final String actionBarTitle;
-  final bool startInAllView;
-  final bool useDetailsView;
-  final String selectCircleStrokeColor;
-  final String selectionLimitReachedText;
-  final String textOnNothingSelected;
-  final String backButtonDrawable;
-  final String okButtonDrawable;
-  final bool autoCloseOnSelectionLimit;
+  final bool folderMode;
+  final String toolbarFolderTitle;
+  final String toolbarImageTitle;
+  final String toolbarDoneButtonText;
+  final String toolbarArrowColor; // Color.BLACK
+  final bool includeAnimation;
 
   const MaterialOptions({
-    this.actionBarColor,
-    this.actionBarTitle,
-    this.lightStatusBar,
-    this.statusBarColor,
-    this.actionBarTitleColor,
-    this.allViewTitle,
-    this.startInAllView,
-    this.useDetailsView,
-    this.selectCircleStrokeColor,
-    this.selectionLimitReachedText,
-    this.textOnNothingSelected,
-    this.backButtonDrawable,
-    this.okButtonDrawable,
-    this.autoCloseOnSelectionLimit,
+    this.folderMode,
+    this.toolbarFolderTitle,
+    this.toolbarImageTitle,
+    this.toolbarDoneButtonText,
+    this.toolbarArrowColor,
+    this.includeAnimation,
   });
 
   Map<String, String> toJson() {
     return {
-      "actionBarColor": actionBarColor ?? "",
-      "actionBarTitle": actionBarTitle ?? "",
-      "actionBarTitleColor": actionBarTitleColor ?? "",
-      "allViewTitle": allViewTitle ?? "",
-      "lightStatusBar": lightStatusBar == true ? "true" : "false",
-      "statusBarColor": statusBarColor ?? "",
-      "startInAllView": startInAllView == true ? "true" : "false",
-      "useDetailsView": useDetailsView == true ? "true" : "false",
-      "selectCircleStrokeColor": selectCircleStrokeColor ?? "",
-      "selectionLimitReachedText": selectionLimitReachedText ?? "",
-      "textOnNothingSelected": textOnNothingSelected ?? "",
-      "backButtonDrawable": backButtonDrawable ?? "",
-      "okButtonDrawable": okButtonDrawable ?? "",
-      "autoCloseOnSelectionLimit":
-          autoCloseOnSelectionLimit == true ? "true" : "false"
+      "folderMode": folderMode == true ? "true" : "false",
+      "toolbarFolderTitle": toolbarFolderTitle ?? "",
+      "toolbarImageTitle": toolbarImageTitle ?? "",
+      "toolbarDoneButtonText": toolbarDoneButtonText ?? "",
+      "toolbarArrowColor": toolbarArrowColor ?? "black",
+      "includeAnimation": includeAnimation == true ? "true" : "false",
     };
   }
 }

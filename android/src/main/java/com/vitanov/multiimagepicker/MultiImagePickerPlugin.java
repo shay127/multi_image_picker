@@ -77,7 +77,7 @@ public class MultiImagePickerPlugin implements
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
     private static final String SELECTED_ASSETS = "selectedAssets";
-    private static final String ENABLE_CAMERA = "enableCamera";
+    private static final String GALLERY_MODE = "galleryMode";
     private static final String ANDROID_OPTIONS = "androidOptions";
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private MethodChannel channel;
@@ -269,9 +269,9 @@ public class MultiImagePickerPlugin implements
         if (PICK_IMAGES.equals(call.method)) {
             final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
             int maxImages = (int) this.methodCall.argument(MAX_IMAGES);
-            boolean enableCamera = (boolean) this.methodCall.argument(ENABLE_CAMERA);
+            int galleryMode = (int) this.methodCall.argument(GALLERY_MODE);
             ArrayList<String> selectedAssets = this.methodCall.argument(SELECTED_ASSETS);
-            presentPicker(maxImages, enableCamera, selectedAssets, options);
+            presentPicker(maxImages, galleryMode, selectedAssets, options);
         } else if (REQUEST_ORIGINAL.equals(call.method)) {
             final String identifier = call.argument("identifier");
             final int quality = (int) call.argument("quality");
@@ -528,86 +528,68 @@ public class MultiImagePickerPlugin implements
         return (fileName != null);
     }
 
-    private void presentPicker(int maxImages, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {
-        String autoCloseOnSelectionLimit = options.get("autoCloseOnSelectionLimit");
-        //ArrayList<Uri> selectedUris = new ArrayList<Uri>();
-        ArrayList<Image> selectedImages = new ArrayList<Image>();
+    private void presentPicker(int maxImages, int galleryMode, ArrayList<String> selectedAssets, HashMap<String, String> options) {
+        String folderMode = options.get("folderMode");
+        String toolbarFolderTitle = options.get("toolbarFolderTitle");
+        String toolbarImageTitle = options.get("toolbarImageTitle");
+        String toolbarDoneButtonText = options.get("toolbarDoneButtonText");
+        String toolbarArrowColor = options.get("toolbarArrowColor");
+        int toolbarArrowColorInt = Color.BLACK;
+        String includeAnimation = options.get("includeAnimation");
 
+        if (toolbarArrowColor != null && !toolbarArrowColor.isEmpty()) {
+            toolbarArrowColorInt = Color.parseColor(toolbarArrowColor);
+        }
+
+        ArrayList<Image> selectedImages = new ArrayList<Image>();
         for (String path : selectedAssets) {
-            /*
-            System.out.println("[1] ===== " + path + " =====");
-            System.out.println("[2] ===== " + convertMediaUriToPath(Uri.parse(path)) + " =====");
-            System.out.println("[3] ===== " + convertMediaUriToId(Uri.parse(path)) + " =====");
-            selectedUris.add(Uri.parse(path));
-            */
             long selectedAssetId = convertMediaUriToId(Uri.parse(path));
             String selectedAssetPath = convertMediaUriToPath(Uri.parse(path));
             String selectedAssetName = selectedAssetPath.substring(selectedAssetPath.lastIndexOf("/")+1);
             selectedImages.add(new Image(selectedAssetId, selectedAssetName, selectedAssetPath));
         }
 
-        /*
-        boolean mediaTypeExclusive = false;
-        Set<MimeType> mimeTypes = MimeType.ofAll();
-        String packageName = context.getApplicationInfo().packageName;
-        Matisse.from(MultiImagePickerPlugin.this.activity)
-                .choose(mimeTypes, mediaTypeExclusive)
-                .showSingleMediaType(false)
-                .countable(true)
-                .capture(enableCamera)
-                .captureStrategy(
-                    new CaptureStrategy(true, packageName + ".multiimagepicker.fileprovider")
-                )
-                .maxSelectable(maxImages)
-                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                .thumbnailScale(0.85f)
-                .showPreview(false)
-                .imageEngine(new GlideEngine())
-                .autoHideToolbarOnSingleTap(true)
-                .setOnSelectedListener(new OnSelectedListener() {
-                    public void onSelected(List<Uri> uriList, List<String> pathList) {
-                        System.out.println("===== onSelected: pathList=" + pathList + ", count: " + pathList.length);
-                        if (pathList.length == maxImages) {
-
-                        }
-                    }
-                })
-                .setOnCheckedListener(new OnCheckedListener() {
-                    public void onCheck(boolean isChecked) {
-                        System.out.println("===== onCheck: isChecked=" + isChecked);
-                    }
-                })
-                .forResult(REQUEST_CODE_CHOOSE);
-
-        */
+        // galleryMode : 1-Images&Video;2-Images;3-Video
+        boolean includeVideo = false;
+        boolean onlyVideo = false;
+        if (galleryMode == 1) {
+            includeVideo = true;
+        } else if (galleryMode == 2) {
+            includeVideo = true;
+            onlyVideo = true;
+        } else if (galleryMode == 3) {
+            onlyVideo = true;
+        }
 
         if (maxImages == 1) {
             ImagePicker.create(MultiImagePickerPlugin.this.activity)
                 .returnMode(ReturnMode.ALL)
-                .folderMode(true)
-                .toolbarFolderTitle("Folder")
-                .toolbarImageTitle("Tap to select")
-                .toolbarArrowColor(Color.BLACK)
-                .includeVideo(true)
+                .includeVideo(includeVideo)
+                .onlyVideo(onlyVideo)
+                .folderMode(folderMode.equals("true"))
+                .includeAnimation(includeAnimation.equals("true"))
+                .toolbarFolderTitle(toolbarFolderTitle)
+                .toolbarImageTitle(toolbarImageTitle)
+                .toolbarDoneButtonText(toolbarDoneButtonText)
+                .toolbarArrowColor(toolbarArrowColorInt)
                 .single()
-                .showCamera(enableCamera)
-                .imageDirectory("Camera")
-                //.theme(R.style.CustomImagePickerTheme)
+                .showCamera(false)
                 .start();
         } else {
             ImagePicker.create(MultiImagePickerPlugin.this.activity)
                 .returnMode(ReturnMode.NONE)
-                .folderMode(true)
-                .toolbarFolderTitle("Folder")
-                .toolbarImageTitle("Tap to select")
-                .toolbarArrowColor(Color.BLACK)
-                .includeVideo(true)
+                .includeVideo(includeVideo)
+                .onlyVideo(onlyVideo)
+                .folderMode(folderMode.equals("true"))
+                .includeAnimation(includeAnimation.equals("true"))
+                .toolbarFolderTitle(toolbarFolderTitle)
+                .toolbarImageTitle(toolbarImageTitle)
+                .toolbarDoneButtonText(toolbarDoneButtonText)
+                .toolbarArrowColor(toolbarArrowColorInt)
                 .multi()
                 .limit(maxImages)
-                .showCamera(enableCamera)
-                .imageDirectory("Camera")
+                .showCamera(false)
                 .origin(selectedImages)
-                //.theme(R.style.CustomImagePickerTheme)
                 .start();
         }
     }
@@ -630,7 +612,15 @@ public class MultiImagePickerPlugin implements
 	    long id = cursor.getLong(column_index); 
 	    cursor.close();
 	    return id;
-	}
+    }
+    
+    private boolean getIsVideo(Uri uri) {
+        String mimeType = context.getContentResolver().getType(uri);
+        boolean isImage = mimeType != null && mimeType.startsWith("image");
+        boolean isVideo = mimeType != null && mimeType.startsWith("video");
+        //System.out.println("[XXX] " + mimeType);
+        return !isImage && isVideo;
+    }
 
     @Override
     public boolean onActivityResult(int requestCode, final int resultCode, Intent data) {
@@ -647,11 +637,8 @@ public class MultiImagePickerPlugin implements
             List<HashMap<String, Object>> result = new ArrayList<>(images.size());
             for (Image image : images) {
                 Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image.getId());
-                System.out.println("[A] ===== " + image.getId() + " ; " + image.getName() + " ; " + image.getPath() + " =====");
-                //Uri uri = image.getUri();
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("identifier", uri.toString());
-                //map.put("identifier", path);
                 InputStream is = null;
                 int width = 0, height = 0;
 
@@ -682,6 +669,7 @@ public class MultiImagePickerPlugin implements
                 map.put("width", width);
                 map.put("height", height);
                 map.put("name", getFileName(uri));
+                map.put("isVideo", getIsVideo(uri));
                 result.add(map);
             }
             finishWithSuccess(result);
