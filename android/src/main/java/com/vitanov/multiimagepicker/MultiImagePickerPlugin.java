@@ -555,9 +555,10 @@ public class MultiImagePickerPlugin implements
         if (galleryMode == 1) {
             includeVideo = true;
         } else if (galleryMode == 2) {
-            includeVideo = true;
-            onlyVideo = true;
+            includeVideo = false;
+            onlyVideo = false;
         } else if (galleryMode == 3) {
+            includeVideo = true;
             onlyVideo = true;
         }
 
