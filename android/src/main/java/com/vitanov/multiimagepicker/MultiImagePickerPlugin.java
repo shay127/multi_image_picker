@@ -19,6 +19,7 @@ import android.media.ThumbnailUtils;
 
 import android.webkit.MimeTypeMap;
 import android.content.ContentResolver;
+import java.net.URLConnection;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -656,7 +657,14 @@ public class MultiImagePickerPlugin implements
             }
             List<HashMap<String, Object>> result = new ArrayList<>(images.size());
             for (Image image : images) {
-                Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image.getId());
+                boolean isVideo = isVideoFormat(image);
+                Uri uri;
+                if (isVideo) {
+                    uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, image.getId());
+                } else {
+                    uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image.getId());
+                }
+                //System.out.println("[uri] " + uri);
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("identifier", uri.toString());
                 InputStream is = null;
@@ -689,13 +697,34 @@ public class MultiImagePickerPlugin implements
                 map.put("width", width);
                 map.put("height", height);
                 map.put("name", getFileName(uri));
-                map.put("isVideo", getIsVideo(uri));
+                map.put("isVideo", isVideo);
                 result.add(map);
             }
             finishWithSuccess(result);
             return true;
         } else {
             return false;
+        }
+    }
+
+    private boolean isVideoFormat(Image image) {
+        String extension = getExtension(image.getPath());
+        String mimeType = TextUtils.isEmpty(extension)
+                ? URLConnection.guessContentTypeFromName(image.getPath())
+                : MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        return mimeType != null && mimeType.startsWith("video");
+
+    }
+
+    private String getExtension(String path) {
+        String extension = MimeTypeMap.getFileExtensionFromUrl(path);
+        if (!TextUtils.isEmpty(extension)) {
+            return extension;
+        }
+        if (path.contains(".")) {
+            return path.substring(path.lastIndexOf(".") + 1, path.length());
+        } else {
+            return "";
         }
     }
 
