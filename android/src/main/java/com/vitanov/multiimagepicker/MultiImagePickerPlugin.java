@@ -17,6 +17,9 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.media.ThumbnailUtils;
 
+import android.webkit.MimeTypeMap;
+import android.content.ContentResolver;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
@@ -617,10 +620,26 @@ public class MultiImagePickerPlugin implements
     
     private boolean getIsVideo(Uri uri) {
         String mimeType = context.getContentResolver().getType(uri);
+        if (mimeType == null) {
+            mimeType = getMimeType(uri);
+        }
         boolean isImage = mimeType != null && mimeType.startsWith("image");
         boolean isVideo = mimeType != null && mimeType.startsWith("video");
-        //System.out.println("[XXX] " + mimeType);
-        return !isImage && isVideo;
+        //System.out.println("[XXX1] " + uri);
+        //System.out.println("[XXX2] " + mimeType);
+        return !isImage;
+    }
+
+    private String getMimeType(Uri uri) {           
+        String mimeType = null;
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver cr = context.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+        }
+        return mimeType;
     }
 
     @Override
