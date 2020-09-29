@@ -658,6 +658,7 @@ public class MultiImagePickerPlugin implements
             List<HashMap<String, Object>> result = new ArrayList<>(images.size());
             for (Image image : images) {
                 boolean isVideo = isVideoFormat(image);
+                // System.out.println("[path] " + image.getPath());
                 Uri uri;
                 if (isVideo) {
                     uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, image.getId());
@@ -698,6 +699,7 @@ public class MultiImagePickerPlugin implements
                 map.put("height", height);
                 map.put("name", getFileName(uri));
                 map.put("isVideo", isVideo);
+                map.put("path", image.getPath());
                 result.add(map);
             }
             finishWithSuccess(result);

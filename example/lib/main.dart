@@ -121,6 +121,8 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         previewImage = resultList[0];
         print("isVideo: ${previewImage.isVideo}");
+        print("path: ${previewImage.path}");
+        print("identifier: ${previewImage.identifier}");
         _error = error;
       });
     }

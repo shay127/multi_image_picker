@@ -19,12 +19,16 @@ class Asset {
   /// indication if image or video
   bool _isVideo;
 
+  /// The resource path
+  String _path;
+
   Asset(
     this._identifier,
     this._name,
     this._originalWidth,
     this._originalHeight,
     this._isVideo,
+    this._path,
   );
 
   /// The BinaryChannel name this asset is listening on.
@@ -69,6 +73,11 @@ class Asset {
   /// Returns if image or video
   bool get isVideo {
     return _isVideo;
+  }
+
+  /// Returns the image path
+  String get path {
+    return _path;
   }
 
   /// Requests a thumbnail for the [Asset] with give [width] and [hegiht].
