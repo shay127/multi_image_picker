@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import BSImagePicker
 import Photos
+import AVKit
 
 extension PHAsset {
     
@@ -235,7 +236,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                             "height": asset.pixelHeight,
                             "name": asset.originalFilename!,
                             "isVideo": asset.mediaType == .video,
-                            "path": asset.localIdentifier
+                            "path": asset.mediaType == .video ? type(of: self).getVideoUrlFromPHAsset(asset: asset) : asset.localIdentifier
                         ]);
                     }
                     result(results);
@@ -344,6 +345,27 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 }
             })
         })
+    }
+
+    static func getVideoUrlFromPHAsset(asset:PHAsset) -> String {
+        let semaphore = DispatchSemaphore(value: 0)
+
+        var videoUrl = "";
+
+        let options = PHVideoRequestOptions()
+        // options.isSynchronous = true
+        // options.deliveryMode = .highQualityFormat
+
+        PHImageManager().requestAVAsset(forVideo:asset, options: options, resultHandler: { (avAsset: AVAsset?, audioMix: AVAudioMix?, info: [AnyHashable : Any]?) in
+            let videoAsset = avAsset as! AVURLAsset
+            videoUrl = videoAsset.url.absoluteString
+
+            semaphore.signal()
+        })
+
+        semaphore.wait(timeout: DispatchTime.distantFuture)
+
+        return videoUrl
     }
     
     static func fetchPhotoMetadata(data: Data) -> [String: Any]? {
