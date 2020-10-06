@@ -264,7 +264,6 @@ public class MultiImagePickerPlugin implements
 
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
-
         if (!setPendingMethodCallAndResult(call, result)) {
             finishWithAlreadyActiveError(result);
             return;
@@ -645,7 +644,9 @@ public class MultiImagePickerPlugin implements
 
     @Override
     public boolean onActivityResult(int requestCode, final int resultCode, Intent data) {
-        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
+            finishWithError("CANCELLED", "The user has cancelled the selection");
+        } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
 			// Get a list of picked images
 			List<Image> images = ImagePicker.getImages(data);
             // or get a single image only
@@ -705,8 +706,10 @@ public class MultiImagePickerPlugin implements
             finishWithSuccess(result);
             return true;
         } else {
-            return false;
+            finishWithSuccess(Collections.emptyList());
+            clearMethodCallAndResult();
         }
+        return false;
     }
 
     private boolean isVideoFormat(Image image) {
