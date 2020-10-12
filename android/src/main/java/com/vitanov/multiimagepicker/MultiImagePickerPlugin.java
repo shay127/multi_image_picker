@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.media.ThumbnailUtils;
+import android.media.MediaMetadataRetriever;
 
 import android.webkit.MimeTypeMap;
 import android.content.ContentResolver;
@@ -672,28 +673,36 @@ public class MultiImagePickerPlugin implements
                 InputStream is = null;
                 int width = 0, height = 0;
 
-                try {
-                    is = context.getContentResolver().openInputStream(uri);
-                    BitmapFactory.Options dbo = new BitmapFactory.Options();
-                    dbo.inJustDecodeBounds = true;
-                    dbo.inScaled = false;
-                    dbo.inSampleSize = 1;
-                    BitmapFactory.decodeStream(is, null, dbo);
-                    if (is != null) {
-                        is.close();
+                if (isVideo) {
+                    MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+                    metaRetriever.setDataSource(image.getPath());
+                    height = Integer.valueOf(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                    width = Integer.valueOf(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                    metaRetriever.release();
+                } else {
+                    try {
+                        is = context.getContentResolver().openInputStream(uri);
+                        BitmapFactory.Options dbo = new BitmapFactory.Options();
+                        dbo.inJustDecodeBounds = true;
+                        dbo.inScaled = false;
+                        dbo.inSampleSize = 1;
+                        BitmapFactory.decodeStream(is, null, dbo);
+                        if (is != null) {
+                            is.close();
+                        }
+    
+                        int orientation = getOrientation(context, uri);
+    
+                        if (orientation == 90 || orientation == 270) {
+                            width = dbo.outHeight;
+                            height = dbo.outWidth;
+                        } else {
+                            width = dbo.outWidth;
+                            height = dbo.outHeight;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    int orientation = getOrientation(context, uri);
-
-                    if (orientation == 90 || orientation == 270) {
-                        width = dbo.outHeight;
-                        height = dbo.outWidth;
-                    } else {
-                        width = dbo.outWidth;
-                        height = dbo.outHeight;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
 
                 map.put("width", width);

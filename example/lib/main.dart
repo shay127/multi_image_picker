@@ -123,6 +123,8 @@ class _MyAppState extends State<MyApp> {
         print("isVideo: ${previewImage.isVideo}");
         print("path: ${previewImage.path}");
         print("identifier: ${previewImage.identifier}");
+        print("originalWidth: ${previewImage.originalWidth}");
+        print("originalHeight: ${previewImage.originalHeight}");
         _error = error;
       });
     }
