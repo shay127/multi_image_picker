@@ -678,6 +678,14 @@ public class MultiImagePickerPlugin implements
                     metaRetriever.setDataSource(image.getPath());
                     height = Integer.valueOf(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
                     width = Integer.valueOf(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                    
+                    String metaRotation = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+                    int rotation = metaRotation == null ? 0 : Integer.parseInt(metaRotation);
+                    if (rotation == 90 || rotation == 270) {
+                        int temp = width;
+                        width = height;
+                        height = temp;
+                    }
                     metaRetriever.release();
                 } else {
                     try {
