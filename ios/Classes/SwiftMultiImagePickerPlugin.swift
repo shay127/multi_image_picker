@@ -353,6 +353,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
         var videoUrl = "";
 
         let options = PHVideoRequestOptions()
+        options.isNetworkAccessAllowed = true
         // options.isSynchronous = true
         // options.deliveryMode = .highQualityFormat
 
