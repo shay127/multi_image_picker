@@ -12,8 +12,7 @@ void main() {
     setUp(() {
       channel.setMockMethodCallHandler((MethodCall methodCall) async {
         log.add(methodCall);
-        if (methodCall.method == 'requestOriginal' ||
-            methodCall.method == 'requestThumbnail') {
+        if (methodCall.method == 'requestOriginal' || methodCall.method == 'requestThumbnail') {
           return true;
         }
         return [
@@ -27,7 +26,7 @@ void main() {
 
     group('#pickImages', () {
       test('passes max images argument correctly', () async {
-        await MultiImagePicker.pickImages(maxImages: 5);
+        await MultiImagePicker.pickImages(galleryMode: 1, maxImages: 5);
 
         expect(
           log,
@@ -44,8 +43,9 @@ void main() {
       });
 
       test('passes selected assets correctly', () async {
-        Asset asset = Asset("test", "test.jpg", 100, 100, false);
+        Asset asset = Asset("test", "test.jpg", 100, 100, false, "");
         await MultiImagePicker.pickImages(
+          galleryMode: 1,
           maxImages: 5,
           selectedAssets: [asset],
         );
@@ -72,8 +72,7 @@ void main() {
           selectionStrokeColor: '#0f5e4D',
         );
 
-        await MultiImagePicker.pickImages(
-            maxImages: 5, cupertinoOptions: cupertinoOptions);
+        await MultiImagePicker.pickImages(galleryMode: 1, maxImages: 5, cupertinoOptions: cupertinoOptions);
 
         expect(
           log,
@@ -95,11 +94,10 @@ void main() {
           toolbarFolderTitle: "Aciton bar",
           toolbarImageTitle: "All view title",
           toolbarDoneButtonText: "Done",
-          toolbarArrowColor: 1,
+          toolbarArrowColor: "00ff00",
           includeAnimation: false,
         );
-        await MultiImagePicker.pickImages(
-            maxImages: 5, materialOptions: materialOptions);
+        await MultiImagePicker.pickImages(galleryMode: 1, maxImages: 5, materialOptions: materialOptions);
 
         expect(
           log,
@@ -117,7 +115,7 @@ void main() {
 
       test('does not accept a negative images count', () {
         expect(
-          MultiImagePicker.pickImages(maxImages: -10),
+          MultiImagePicker.pickImages(galleryMode: 1, maxImages: -10),
           throwsArgumentError,
         );
       });

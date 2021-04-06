@@ -20,7 +20,7 @@ void main() {
 
     test('constructor set the identifier correctly', () {
       const String id = 'SOME_ID';
-      Asset asset = Asset(id, 'some name', 100, 100, false);
+      Asset asset = Asset(id, 'some name', 100, 100, false, "");
       expect(
         asset.identifier,
         equals(id),
@@ -29,7 +29,7 @@ void main() {
 
     test('constructor set the name correctly', () {
       const String name = 'Some Name';
-      Asset asset = Asset('1', name, 100, 100, false);
+      Asset asset = Asset('1', name, 100, 100, false, "");
       expect(
         asset.name,
         equals(name),
@@ -37,7 +37,7 @@ void main() {
     });
 
     test('thumbData can not have negative dimensions', () async {
-      Asset asset = Asset('_identifier', 'some name', 50, 50, false);
+      Asset asset = Asset('_identifier', 'some name', 50, 50, false, "");
 
       expect(
         asset.requestThumbnail(-100, 10),
@@ -51,7 +51,7 @@ void main() {
     });
 
     test('asset has correct dimensions', () async {
-      Asset asset = Asset('_identifier', 'some name', 50, 40, false);
+      Asset asset = Asset('_identifier', 'some name', 50, 40, false, "");
 
       expect(
         asset.originalWidth,
@@ -65,8 +65,8 @@ void main() {
     });
 
     test('asset isLandscape and isPortrait work', () async {
-      Asset asset1 = Asset('_identifier', 'some name', 50, 40, false);
-      Asset asset2 = Asset('_identifier', 'some name', 40, 50, false);
+      Asset asset1 = Asset('_identifier', 'some name', 50, 40, false, "");
+      Asset asset2 = Asset('_identifier', 'some name', 40, 50, false, "");
 
       expect(
         asset1.isLandscape,

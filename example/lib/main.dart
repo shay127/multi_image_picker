@@ -11,8 +11,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Asset previewImage;
-  List<Asset> images = List<Asset>();
+  Asset? previewImage;
+  List<Asset> images = <Asset>[];
   String _error = 'No Error Dectected';
 
   @override
@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
     }
     return Column(children: <Widget>[
       AssetThumb(
-        asset: previewImage,
+        asset: previewImage!,
         width: 300,
         height: 300,
       ),
@@ -56,15 +56,15 @@ class _MyAppState extends State<MyApp> {
         child: Text("Ok"),
         onPressed: () {
           setState(() {
+            images = [previewImage!];
             previewImage = null;
-            images = [previewImage];
           });
         },
       ),
       RaisedButton(
         child: Text("Add"),
         onPressed: () async {
-          images = [previewImage];
+          images = [previewImage!];
           previewImage = null;
           await loadAssets();
         },
@@ -73,7 +73,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> loadAsset() async {
-    List<Asset> resultList = List<Asset>();
+    List<Asset> resultList = <Asset>[];
     String error = 'No Error Dectected';
 
     try {
@@ -100,7 +100,7 @@ class _MyAppState extends State<MyApp> {
           cellsPerRow: "4",
         ),
         materialOptions: MaterialOptions(
-          folderMode: true,
+          folderMode: false,
           toolbarFolderTitle: "Example App",
           toolbarImageTitle: "All Photos",
           toolbarDoneButtonText: "Done",
@@ -117,21 +117,21 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    if (resultList != null && resultList.length == 1) {
+    if (resultList.length == 1) {
       setState(() {
         previewImage = resultList[0];
-        print("isVideo: ${previewImage.isVideo}");
-        print("path: ${previewImage.path}");
-        print("identifier: ${previewImage.identifier}");
-        print("originalWidth: ${previewImage.originalWidth}");
-        print("originalHeight: ${previewImage.originalHeight}");
+        print("isVideo: ${previewImage!.isVideo}");
+        print("path: ${previewImage!.path}");
+        print("identifier: ${previewImage!.identifier}");
+        print("originalWidth: ${previewImage!.originalWidth}");
+        print("originalHeight: ${previewImage!.originalHeight}");
         _error = error;
       });
     }
   }
 
   Future<void> loadAssets() async {
-    List<Asset> resultList = List<Asset>();
+    List<Asset> resultList = <Asset>[];
     String error = 'No Error Dectected';
 
     try {
@@ -158,7 +158,7 @@ class _MyAppState extends State<MyApp> {
           cellsPerRow: "4",
         ),
         materialOptions: MaterialOptions(
-          folderMode: true,
+          folderMode: false,
           toolbarFolderTitle: "Example App",
           toolbarImageTitle: "All Photos",
           toolbarDoneButtonText: "Done",

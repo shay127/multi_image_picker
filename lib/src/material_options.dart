@@ -1,10 +1,10 @@
 class MaterialOptions {
-  final bool folderMode;
-  final String toolbarFolderTitle;
-  final String toolbarImageTitle;
-  final String toolbarDoneButtonText;
-  final String toolbarArrowColor; // Color.BLACK
-  final bool includeAnimation;
+  final bool? folderMode;
+  final String? toolbarFolderTitle;
+  final String? toolbarImageTitle;
+  final String? toolbarDoneButtonText;
+  final String? toolbarArrowColor; // Color.BLACK
+  final bool? includeAnimation;
 
   const MaterialOptions({
     this.folderMode,

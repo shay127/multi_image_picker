@@ -1,20 +1,20 @@
 class CupertinoOptions {
-  final String selectionStyle; // checked or numbered
-  final String albumButtonTintColor;
-  final String cancelButtonTintColor;
-  final String doneButtonTintColor;
-  final String navigationBarTintColor;
-  final String backgroundColor;
-  final String selectionFillColor;
-  final String selectionStrokeColor;
-  final String selectionShadowColor;
-  final String previewTitleAttributesFontSize;
-  final String previewTitleAttributesForegroundColor;
-  final String previewSubtitleAttributesFontSize;
-  final String previewSubtitleAttributesForegroundColor;
-  final String albumTitleAttributesFontSize;
-  final String albumTitleAttributesForegroundColor;
-  final String cellsPerRow;
+  final String? selectionStyle; // checked or numbered
+  final String? albumButtonTintColor;
+  final String? cancelButtonTintColor;
+  final String? doneButtonTintColor;
+  final String? navigationBarTintColor;
+  final String? backgroundColor;
+  final String? selectionFillColor;
+  final String? selectionStrokeColor;
+  final String? selectionShadowColor;
+  final String? previewTitleAttributesFontSize;
+  final String? previewTitleAttributesForegroundColor;
+  final String? previewSubtitleAttributesFontSize;
+  final String? previewSubtitleAttributesForegroundColor;
+  final String? albumTitleAttributesFontSize;
+  final String? albumTitleAttributesForegroundColor;
+  final String? cellsPerRow;
 
   const CupertinoOptions({
     this.selectionStyle,

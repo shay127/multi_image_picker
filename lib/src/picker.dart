@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:multi_image_picker/src/exceptions.dart';
 
@@ -34,20 +33,19 @@ class MultiImagePicker {
   /// penalty. How to request the original image or a thumb
   /// you can refer to the docs for the Asset class.
   static Future<List<Asset>> pickImages({
-    @required int maxImages,
-    @required int galleryMode, // 1-Images&Video;2-Images;3-Video
+    required int maxImages,
+    required int galleryMode, // 1-Images&Video;2-Images;3-Video
     List<Asset> selectedAssets = const [],
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
-    assert(maxImages != null);
 
-    if (maxImages != null && maxImages < 0) {
+    if (maxImages < 0) {
       throw new ArgumentError.value(maxImages, 'maxImages cannot be negative');
     }
 
     try {
-      final List<dynamic> images = await _channel.invokeMethod(
+      final List<dynamic> images = (await _channel.invokeMethod(
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
@@ -60,8 +58,8 @@ class MultiImagePicker {
               )
               .toList(),
         },
-      );
-      var assets = List<Asset>();
+      )) as List<dynamic>;
+      var assets = <Asset>[];
       for (var item in images) {
         var asset = Asset(
           item['identifier'],
@@ -92,17 +90,14 @@ class MultiImagePicker {
   /// refer to [Asset] class docs.
   ///
   /// The actual image data is sent via BinaryChannel.
-  static Future<bool> requestThumbnail(
+  static Future<bool?> requestThumbnail(
       String identifier, int width, int height, int quality) async {
-    assert(identifier != null);
-    assert(width != null);
-    assert(height != null);
 
-    if (width != null && width < 0) {
+    if (width < 0) {
       throw new ArgumentError.value(width, 'width cannot be negative');
     }
 
-    if (height != null && height < 0) {
+    if (height < 0) {
       throw new ArgumentError.value(height, 'height cannot be negative');
     }
 
@@ -112,7 +107,7 @@ class MultiImagePicker {
     }
 
     try {
-      bool ret = await _channel.invokeMethod(
+      bool? ret = await _channel.invokeMethod(
           "requestThumbnail", <String, dynamic>{
         "identifier": identifier,
         "width": width,
@@ -142,9 +137,9 @@ class MultiImagePicker {
   /// refer to [Asset] class docs.
   ///
   /// The actual image data is sent via BinaryChannel.
-  static Future<bool> requestOriginal(String identifier, quality) async {
+  static Future<bool?> requestOriginal(String? identifier, quality) async {
     try {
-      bool ret =
+      bool? ret =
           await _channel.invokeMethod("requestOriginal", <String, dynamic>{
         "identifier": identifier,
         "quality": quality,
@@ -161,13 +156,13 @@ class MultiImagePicker {
   }
 
   // Requests image metadata for a given [identifier]
-  static Future<Metadata> requestMetadata(String identifier) async {
-    Map<dynamic, dynamic> map = await _channel.invokeMethod(
+  static Future<Metadata> requestMetadata(String? identifier) async {
+    Map<dynamic, dynamic> map = (await _channel.invokeMethod(
       "requestMetadata",
       <String, dynamic>{
         "identifier": identifier,
       },
-    );
+    )) as Map<dynamic, dynamic>;
 
     Map<String, dynamic> metadata = Map<String, dynamic>.from(map);
     if (Platform.isIOS) {
@@ -179,13 +174,13 @@ class MultiImagePicker {
 
   /// Normalizes the meta data returned by iOS.
   static Map<String, dynamic> _normalizeMetadata(Map<String, dynamic> json) {
-    Map map = Map<String, dynamic>();
+    var map = Map<String, dynamic>();
 
     json.forEach((String metaKey, dynamic metaValue) {
       if (metaKey == '{Exif}' || metaKey == '{TIFF}') {
         map.addAll(Map<String, dynamic>.from(metaValue));
       } else if (metaKey == '{GPS}') {
-        Map gpsMap = Map<String, dynamic>();
+        var gpsMap = Map<String, dynamic>();
         Map<String, dynamic> metaMap = Map<String, dynamic>.from(metaValue);
         metaMap.forEach((String key, dynamic value) {
           if (key == 'GPSVersion') {
